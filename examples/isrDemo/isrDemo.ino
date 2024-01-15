@@ -41,7 +41,7 @@ void setup()
 {
     Serial.begin(115200);
     /*Wait for the chip to be initialized completely, and then exit*/
-    while (!isr.begin(/* type */moduleType, /* duration */10)) {
+    while (!isr.begin(/* type */moduleType, /* duration */5)) {
         Serial.println("Failed to init chip, please check if the chip connection is fine. ");
         delay(1000);
     }
@@ -53,12 +53,12 @@ void setup()
         // 暂不支持重复添加相同编号的命令词, 可删除后重新添加
         // 中文拼音转换, 可使用库目录下的工具完成
         // 详见 DFRobot_ISRModule_ESP32S3\resources\tool\README.md
-        isr.addCommandWord(1, "da kai deng guang da kai deng guang");
-        isr.addCommandWord(2, "bo fang yin yue");
-        isr.addCommandWord(3, "zan ting yin yue");
+        isr.addCommandWord(1, "jing tian tian qi zen me yang");
+        isr.addCommandWord(2, "ming tian you yu ma");
+        isr.addCommandWord(3, "she zhi ming tian qi dian nao zhong");
 
         // isr.delCommandWord(1);
-        // isr.delCommandWord("bo fang yin yue");
+        // isr.delCommandWord("she zhi ming tian qi dian nao zhong");
     } else if (isr.eSpeechModelEnglish == moduleType) {
         isr.addCommandWord(1, "tell me a joke tell me a joke");
         isr.addCommandWord(2, "turn on the computer");

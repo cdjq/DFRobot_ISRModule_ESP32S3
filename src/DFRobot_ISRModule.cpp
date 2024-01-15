@@ -38,10 +38,10 @@ void DFRobot_ISRModule::setWakeupTime(uint8_t duration)
 void DFRobot_ISRModule::addCommandWord(uint8_t num, String str)
 {
   int length = str.length();
-  char data[30] = { (char)num, (char)length };   // 单次只能发送32字节
+  char data[30] = { (char)num, (char)length };   // 单次只能发送32字节, 且接收限制28稳定
   DBG(length);
-  for (int i = 0; i < length; i += 27) {
-    String chunk = str.substring(i, min(i + 27, length));
+  for (int i = 0; i < length; i += 23) {
+    String chunk = str.substring(i, min(i + 23, length));
     // strcat(data, chunk.c_str());
     strlcat(data, chunk.c_str(), sizeof(data));
     DBG(chunk);
@@ -65,8 +65,8 @@ void DFRobot_ISRModule::delCommandWord(String str)
   //   writeReg(DEL_CMD_BY_STR_REG, (void *)chunk.c_str(), chunk.length());
   // }
   char data[30] = { (char)length };   // 单次只能发送32字节
-  for (int i = 0; i < length; i += 28) {
-    String chunk = str.substring(i, min(i + 28, length));
+  for (int i = 0; i < length; i += 23) {
+    String chunk = str.substring(i, min(i + 23, length));
     strlcat(data, chunk.c_str(), sizeof(data));
     writeReg(DEL_CMD_BY_STR_REG, data, strlen(data));
     data[1] = 0;
