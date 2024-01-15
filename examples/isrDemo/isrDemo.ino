@@ -34,8 +34,8 @@ DFRobot_ISRModule_UART isr(&Serial1, UART_BAUDRATE);
 #endif
 
 // 选择示例演示的模型类型(中文或英文)
-// DFRobot_ISRModule::eSpeechModelType_t moduleType = isr.eSpeechModelChinese;
-DFRobot_ISRModule::eSpeechModelType_t moduleType = isr.eSpeechModelEnglish;
+DFRobot_ISRModule::eSpeechModelType_t moduleType = isr.eSpeechModelChinese;
+// DFRobot_ISRModule::eSpeechModelType_t moduleType = isr.eSpeechModelEnglish;
 
 void setup()
 {
@@ -63,8 +63,9 @@ void setup()
         isr.addCommandWord(1, "tell me a joke tell me a joke");
         isr.addCommandWord(2, "turn on the computer");
         isr.addCommandWord(3, "turn off the computer");
-        isr.delCommandWord(1);
-        isr.delCommandWord("turn on the computer");
+
+        // isr.delCommandWord(1);
+        // isr.delCommandWord("turn on the computer");
     }
 }
 
