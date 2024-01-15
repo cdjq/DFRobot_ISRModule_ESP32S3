@@ -67,6 +67,7 @@ void setup()
         // isr.delCommandWord(1);
         // isr.delCommandWord("turn on the computer");
     }
+    Serial.println("------------detect start------------\n");
 }
 
 void loop()
