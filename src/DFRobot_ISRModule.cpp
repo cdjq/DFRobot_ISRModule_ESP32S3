@@ -20,7 +20,7 @@ bool DFRobot_ISRModule::begin(eSpeechModelType_t type, uint8_t duration)
   data[0] = duration;
   data[1] = type;
   writeReg(WAKEUP_TIME_REG, data, 2);
-  delay(1000);   // 等待模型初始化完成
+  delay(1000);   // 等待初始化完成
   return true;
 }
 
@@ -38,41 +38,46 @@ void DFRobot_ISRModule::setWakeupTime(uint8_t duration)
 void DFRobot_ISRModule::addCommandWord(uint8_t num, String str)
 {
   int16_t length = str.length();
-  // uint8_t count = 0;
-  uint8_t data[128] = { 0 };
-  data[0] = num;
-  for (uint8_t i = 0; i < length; i++) {
-    data[1 + i] = str[i];
+  char data[30] = { (char)num, (char)length };   // 单次只能发送32字节
+  DBG(length);
+  for (int i = 0; i < length; i += 27) {
+    String chunk = str.substring(i, min(i + 27, length));
+    // strcat(data, chunk.c_str());
+    strlcat(data, chunk.c_str(), sizeof(data));
+    DBG(chunk);
+    DBG(strlen(data));
+    // DBG(data);
+    writeReg(ADD_CMD_REG, data, strlen(data));
+    data[2] = 0;
   }
-  // while (length > 0) {
-  // }
-  // if (length == 0) return;
-  writeReg(ADD_CMD_REG, data, length + 1);
-  delay(1000);
 }
 
 void DFRobot_ISRModule::delCommandWord(uint8_t num)
 {
   writeReg(DEL_CMD_BY_ID_REG, &num, 1);
-  delay(1000);
 }
 
 void DFRobot_ISRModule::delCommandWord(String str)
 {
   int16_t length = str.length();
-  uint8_t data[128] = { 0 };
-  for (uint8_t i = 0; i < length; i++) {
-    data[i] = str[i];
+  // for (int i = 0; i < length; i += 30) {
+  //   String chunk = str.substring(i, min(i + 30, length));
+  //   writeReg(DEL_CMD_BY_STR_REG, (void *)chunk.c_str(), chunk.length());
+  // }
+  char data[30] = { (char)length };   // 单次只能发送32字节
+  for (int i = 0; i < length; i += 28) {
+    String chunk = str.substring(i, min(i + 28, length));
+    strlcat(data, chunk.c_str(), sizeof(data));
+    writeReg(DEL_CMD_BY_STR_REG, data, strlen(data));
+    data[1] = 0;
   }
-  writeReg(DEL_CMD_BY_STR_REG, data, length);
-  delay(1000);
 }
 
 uint8_t DFRobot_ISRModule::getKeywordID(void)
 {
   uint8_t id = 0xFF;
   readReg(VOICE_ID_REG, &id, 1);
-  DBG(id);
+  // DBG(id);
   return id;
 }
 
@@ -103,11 +108,12 @@ void DFRobot_ISRModule_I2C::writeReg(uint8_t reg, void* pBuf, size_t size)
   _pWire->write(CMD_WRITE_REGBUF);   // 对于该模块自定义数据包有效
   _pWire->write(reg);
   _pWire->write(size);   // 对于该模块自定义数据包有效
-  for (size_t i = 0; i < size; i++) {
-    _pWire->write(_pBuf[i]);
-  }
+  // for (size_t i = 0; i < size; i++) {
+  //   _pWire->write(_pBuf[i]);
+  // }
+  _pWire->write(_pBuf, size);
   _pWire->endTransmission();
-  delay(50);
+  delay(500);
 }
 
 uint8_t DFRobot_ISRModule_I2C::readReg(uint8_t reg, void* pBuf, size_t size)
@@ -184,7 +190,7 @@ void DFRobot_ISRModule_UART::writeReg(uint8_t reg, void* pBuf, size_t size)
   for (size_t i = 0; i < size; i++) {
     _serial->write(_pBuf[i]);
   }
-  delay(50);
+  delay(500);
 }
 
 uint8_t DFRobot_ISRModule_UART::readReg(uint8_t reg, void* pBuf, size_t size)
