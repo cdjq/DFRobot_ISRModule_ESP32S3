@@ -89,8 +89,8 @@ void loop()
         break;
 
     default:
-        Serial.println("Unknown command word!");
+        // Serial.println("Unknown command word!");
         break;
     }
-    delay(100);
+    delay(200);
 }
