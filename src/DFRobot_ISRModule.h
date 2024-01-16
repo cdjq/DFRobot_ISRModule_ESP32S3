@@ -46,6 +46,7 @@ public:
 #define DEL_CMD_BY_ID_REG    0x04   // 删除关键词 (通过编号)
 #define DEL_CMD_BY_STR_REG   0x05   // 删除关键词 (通过词条)
 
+#define CMD_ERROR_REG        0x03   // 错误寄存器 0 为没有错误
 #define REG_ISR_PID          0xAAU
 #define REG_ISR_VID          0xACU
 #define REG_ISR_VERSION      0xAEU
@@ -80,7 +81,7 @@ public:
    * @return bool type, means returning initialization status
    * @retval true NO_ERROR
    */
-  virtual bool begin(eSpeechModelType_t type = eSpeechModelChinese, uint8_t duration = 5);
+  virtual bool begin(eSpeechModelType_t type = eSpeechModelChinese, uint8_t duration = 10);
 
   /**
    * @fn addCommandWord
@@ -123,8 +124,9 @@ private:
 
   /**
    * @fn setWakeupTime
-   * @brief 设置退出唤醒时间（0为不退出）
-   * @param duration - 唤醒持续时间. range: 0~255, unit: second.
+   * @brief 设置退出唤醒时间
+   * @param duration - 唤醒持续时间. range: 0, 6~120, unit: second.
+   * @note 6秒为下限, 除开零以外, 小于6秒也设为6秒; 0为不退出
    * @return None
    */
   void setWakeupTime(uint8_t duration);
@@ -157,7 +159,7 @@ class DFRobot_ISRModule_I2C:public DFRobot_ISRModule
 {
 public:
   DFRobot_ISRModule_I2C(TwoWire* pWire = &Wire, uint8_t addr = MODULE_I2C_ADDRESS);
-  bool begin(eSpeechModelType_t type = eSpeechModelChinese, uint8_t duration = 5);
+  bool begin(eSpeechModelType_t type = eSpeechModelChinese, uint8_t duration = 10);
 protected:
   virtual void writeReg(uint8_t reg, void* pBuf, size_t size);
   virtual uint8_t readReg(uint8_t reg, void* pBuf, size_t size);
@@ -175,7 +177,7 @@ public:
   DFRobot_ISRModule_UART(HardwareSerial* hSerial, uint32_t Baud = UART_BAUDRATE, uint8_t rxpin = 0, uint8_t txpin = 0);
 #endif
 
-  bool begin(eSpeechModelType_t type = eSpeechModelChinese, uint8_t duration = 5);
+  bool begin(eSpeechModelType_t type = eSpeechModelChinese, uint8_t duration = 10);
 protected:
   virtual void writeReg(uint8_t reg, void* pBuf, size_t size);
   virtual uint8_t readReg(uint8_t reg, void* pBuf, size_t size);

@@ -40,6 +40,7 @@ void DFRobot_ISRModule::addCommandWord(uint8_t num, String str)
   int length = str.length();
   char data[30] = { (char)num, (char)length };   // 单次只能发送32字节, 且接收限制28稳定
   DBG(length);
+
   for (int i = 0; i < length; i += 23) {
     String chunk = str.substring(i, min(i + 23, length));
     // strcat(data, chunk.c_str());
@@ -49,6 +50,23 @@ void DFRobot_ISRModule::addCommandWord(uint8_t num, String str)
     // DBG(data);
     writeReg(ADD_CMD_REG, data, strlen(data));
     data[2] = 0;
+  }
+
+  uint8_t ret = 0;
+  readReg(CMD_ERROR_REG, &ret, 1);
+  if (0 != ret) {   // 再尝试添加一遍
+    DBG("addCommandWord error");
+    DBG(ret);
+    for (int i = 0; i < length; i += 23) {
+      String chunk = str.substring(i, min(i + 23, length));
+      // strcat(data, chunk.c_str());
+      strlcat(data, chunk.c_str(), sizeof(data));
+      DBG(chunk);
+      DBG(strlen(data));
+      // DBG(data);
+      writeReg(ADD_CMD_REG, data, strlen(data));
+      data[2] = 0;
+    }
   }
 }
 
@@ -70,6 +88,19 @@ void DFRobot_ISRModule::delCommandWord(String str)
     strlcat(data, chunk.c_str(), sizeof(data));
     writeReg(DEL_CMD_BY_STR_REG, data, strlen(data));
     data[1] = 0;
+  }
+
+  uint8_t ret = 0;
+  readReg(CMD_ERROR_REG, &ret, 1);
+  if (0 != ret) {   // 再尝试删除一遍
+    DBG("delCommandWord error");
+    DBG(ret);
+    for (int i = 0; i < length; i += 23) {
+      String chunk = str.substring(i, min(i + 23, length));
+      strlcat(data, chunk.c_str(), sizeof(data));
+      writeReg(DEL_CMD_BY_STR_REG, data, strlen(data));
+      data[1] = 0;
+    }
   }
 }
 
@@ -132,8 +163,8 @@ uint8_t DFRobot_ISRModule_I2C::readReg(uint8_t reg, void* pBuf, size_t size)
     return 1;
   }
   delay(50);
-  _pWire->requestFrom((uint8_t)_deviceAddr, (uint8_t)size);
-  // _pWire->read();
+  _pWire->requestFrom((uint8_t)_deviceAddr, (uint8_t)(size+1));
+  _pWire->read();   // 无效第一个可能是错误数据的字节
   size_t i = 0;
   while (_pWire->available()) {
     _pBuf[i++] = _pWire->read();
