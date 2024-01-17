@@ -164,7 +164,7 @@ uint8_t DFRobot_ISRModule_I2C::readReg(uint8_t reg, void* pBuf, size_t size)
   }
   delay(50);
   _pWire->requestFrom((uint8_t)_deviceAddr, (uint8_t)(size+1));
-  _pWire->read();   // 无效第一个可能是错误数据的字节
+  _pWire->read();   // 无效第一个可能是错误数据的字节 仅i2c
   size_t i = 0;
   while (_pWire->available()) {
     _pBuf[i++] = _pWire->read();
