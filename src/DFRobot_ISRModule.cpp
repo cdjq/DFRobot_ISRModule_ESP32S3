@@ -6,7 +6,7 @@
  * @author [qsjhyy](yihuan.huang@dfrobot.com)
  * @version V1.0
  * @date 2024-01-06
- * @url https://github.com/DFRobot/DFRobot_ISRModule
+ * @url https://github.com/DFRobot/DFRobot_ISRModule_ESP32S3
  */
 #include "DFRobot_ISRModule.h"
 
@@ -20,7 +20,7 @@ bool DFRobot_ISRModule::begin(eSpeechModelType_t type, uint8_t duration)
   data[0] = duration;
   data[1] = type;
   writeReg(WAKEUP_TIME_REG, data, 2);
-  delay(1000);   // 等待初始化完成
+  delay(1000);   // Wait for the initialization to complete
   return true;
 }
 
@@ -35,10 +35,10 @@ void DFRobot_ISRModule::setWakeupTime(uint8_t duration)
   writeReg(WAKEUP_TIME_REG, &duration, 1);
 }
 
-void DFRobot_ISRModule::addCommandWord(uint8_t num, String str)
+bool DFRobot_ISRModule::addCommandWord(uint8_t num, String str)
 {
   int length = str.length();
-  char data[30] = { (char)num, (char)length };   // 单次只能发送32字节, 且接收限制28稳定
+  char data[30] = { (char)num, (char)length };   // Only 32 bytes can be sent at a time, and the receive limit is 28 stable
   DBG(length);
 
   for (int i = 0; i < length; i += 23) {
@@ -54,7 +54,7 @@ void DFRobot_ISRModule::addCommandWord(uint8_t num, String str)
 
   uint8_t ret = 0;
   readReg(CMD_ERROR_REG, &ret, 1);
-  if (0 != ret) {   // 再尝试添加一遍
+  if (0 != ret) {   // Try adding it again
     DBG("addCommandWord error");
     DBG(ret);
     for (int i = 0; i < length; i += 23) {
@@ -67,6 +67,13 @@ void DFRobot_ISRModule::addCommandWord(uint8_t num, String str)
       writeReg(ADD_CMD_REG, data, strlen(data));
       data[2] = 0;
     }
+    readReg(CMD_ERROR_REG, &ret, 1);
+  }
+
+  if (0 == ret) {
+    return true;
+  } else {
+    return false;
   }
 }
 
@@ -78,11 +85,7 @@ void DFRobot_ISRModule::delCommandWord(uint8_t num)
 void DFRobot_ISRModule::delCommandWord(String str)
 {
   int length = str.length();
-  // for (int i = 0; i < length; i += 30) {
-  //   String chunk = str.substring(i, min(i + 30, length));
-  //   writeReg(DEL_CMD_BY_STR_REG, (void *)chunk.c_str(), chunk.length());
-  // }
-  char data[30] = { (char)length };   // 单次只能发送32字节
+  char data[30] = { (char)length };   // Only 32 bytes can be sent at a time
   for (int i = 0; i < length; i += 23) {
     String chunk = str.substring(i, min(i + 23, length));
     strlcat(data, chunk.c_str(), sizeof(data));
@@ -92,7 +95,7 @@ void DFRobot_ISRModule::delCommandWord(String str)
 
   uint8_t ret = 0;
   readReg(CMD_ERROR_REG, &ret, 1);
-  if (0 != ret) {   // 再尝试删除一遍
+  if (0 != ret) {   // Try deleting it again
     DBG("delCommandWord error");
     DBG(ret);
     for (int i = 0; i < length; i += 23) {
@@ -136,9 +139,9 @@ void DFRobot_ISRModule_I2C::writeReg(uint8_t reg, void* pBuf, size_t size)
   }
   uint8_t* _pBuf = (uint8_t*)pBuf;
   _pWire->beginTransmission(_deviceAddr);
-  _pWire->write(CMD_WRITE_REGBUF);   // 对于该模块自定义数据包有效
+  _pWire->write(CMD_WRITE_REGBUF);   // Custom packets are valid for this module
   _pWire->write(reg);
-  _pWire->write(size);   // 对于该模块自定义数据包有效
+  _pWire->write(size);   // Custom packets are valid for this module
   // for (size_t i = 0; i < size; i++) {
   //   _pWire->write(_pBuf[i]);
   // }
@@ -155,16 +158,16 @@ uint8_t DFRobot_ISRModule_I2C::readReg(uint8_t reg, void* pBuf, size_t size)
   uint8_t* _pBuf = (uint8_t*)pBuf;
 
   _pWire->beginTransmission(_deviceAddr);
-  _pWire->write(CMD_READ_REGBUF);   // 对于该模块自定义数据包有效
+  _pWire->write(CMD_READ_REGBUF);   // Custom packets are valid for this module
   _pWire->write(reg);
-  _pWire->write(size);   // 对于该模块自定义数据包有效
+  _pWire->write(size);   // Custom packets are valid for this module
   if (_pWire->endTransmission() != 0) {
     DBG("endTransmission ERROR!!");
     return 1;
   }
   delay(50);
   _pWire->requestFrom((uint8_t)_deviceAddr, (uint8_t)(size+1));
-  _pWire->read();   // 无效第一个可能是错误数据的字节 仅i2c
+  _pWire->read();   // Invalid first may be error data bytes only i2c
   size_t i = 0;
   while (_pWire->available()) {
     _pBuf[i++] = _pWire->read();
