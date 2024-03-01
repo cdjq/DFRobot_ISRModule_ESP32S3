@@ -204,8 +204,8 @@ bool DFRobot_ISRModule_UART::begin(eSpeechModelType_t type, uint8_t duration)
 
   uint8_t data[2] = { 0 };
   readReg(REG_ISR_PID, data, 2);
-  if (MODULE_DFR0715_PID != (data[0] | (data[1] << 8))) {
-    DBG((data[0] | (data[1] << 8)), HEX);
+  if (MODULE_DFR0715_PID != ((data[0] << 8) | data[1])) {
+    DBG(((data[0] << 8) | data[1]), HEX);
     return false;
   }
   return DFRobot_ISRModule::begin(type, duration);
