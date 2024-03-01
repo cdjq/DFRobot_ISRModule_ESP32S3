@@ -1,4 +1,4 @@
-# DFRobot_ISRModule
+# DFRobot_ISRModule_ESP32S3
 - [English Version](./README.md)
 
 该模块采用由 乐鑫 公司设计的 ESP32S3 芯片，只需要在程序中设定好要识别的关键词语列表并下载进主控的MCU中，语音识别模块就可以对用户说出的关键词语进行识别，并根据程序进行相应的处理。本品不需要用户事先训练和录音就可以完成非特定人语音识别，识别准确率高达95%。
@@ -42,10 +42,10 @@
 
   /**
    * @fn begin
-   * @brief subclass initialization function
+   * @brief 初始化函数
    * @param type - 语音识别模型的类型: 待机，中文，英文
-   * @param duration - 唤醒持续时间. range: 0~255, unit: second.
-   * @return bool type, means returning initialization status
+   * @param duration - 唤醒持续时间. 范围: 0, [6, 120], 单位: 秒. 注：设置0为始终唤醒
+   * @return Bool类型，表示初始化结果
    * @retval true NO_ERROR
    */
   virtual bool begin(eSpeechModelType_t type = eSpeechModelChinese, uint8_t duration = 10);
@@ -55,7 +55,7 @@
    * @brief 添加关键词(词条, 编号)
    * @param num - 命令词编号
    * @param str - 命令词词条
-   * @return The value is bool: true is returned on success, false is returned on failure
+   * @return 返回值类型为bool: 成功返回true，失败返回false
    */
   bool addCommandWord(uint8_t num, String str);
 

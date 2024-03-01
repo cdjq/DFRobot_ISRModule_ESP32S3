@@ -82,7 +82,7 @@ public:
    * @fn begin
    * @brief subclass initialization function
    * @param type - Types of speech recognition models: Standby, Chinese, English
-   * @param duration - Wake-up duration. range: 0~255, unit: second.
+   * @param duration - Wake-up duration. range: 0, [6, 120], unit: second. note: 0 To always stay awake.
    * @return bool type, means returning initialization status
    * @retval true NO_ERROR
    */

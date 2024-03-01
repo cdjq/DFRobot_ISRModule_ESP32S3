@@ -40,7 +40,12 @@ void setup()
 {
   Serial.begin(115200);
 
-  /* Wait for the chip to be initialized completely, and then exit */
+  /**
+   * subclass initialization function
+   * type - Types of speech recognition models: Standby, Chinese, English
+   * duration - Wake-up duration. range: 0, [6, 120], unit: second. note: 0 To always stay awake.
+   * bool type, means returning initialization status
+   */
   while (!isr.begin(/* type */ isr.eSpeechModelChinese, /* duration */ 10)) {
     Serial.println("Failed to init chip, please check if the chip connection is fine. ");
     delay(1000);
