@@ -14,22 +14,15 @@ DFRobot_ISRModule::DFRobot_ISRModule()
 {
 }
 
-bool DFRobot_ISRModule::begin(eSpeechModelType_t type, uint8_t duration)
+bool DFRobot_ISRModule::begin(uint8_t duration)
 {
   uint8_t data[2] = { 0 };
   data[0] = duration;
-  data[1] = type;
+  data[1] = eSpeechModelChinese;
   writeReg(WAKEUP_TIME_REG, data, 2);
   delay(1000);   // Wait for the initialization to complete
   return true;
 }
-
-void DFRobot_ISRModule::setSpeechModelType(eSpeechModelType_t type)
-{
-  uint8_t mode = type;
-  writeReg(MODEL_TYPE_REG, &mode, 1);
-}
-
 void DFRobot_ISRModule::setWakeupTime(uint8_t duration)
 {
   writeReg(WAKEUP_TIME_REG, &duration, 1);
@@ -37,6 +30,7 @@ void DFRobot_ISRModule::setWakeupTime(uint8_t duration)
 
 bool DFRobot_ISRModule::addCommandWord(uint8_t num, String str)
 {
+  if(num == 0) { return false; }
   int length = str.length();
   char data[30] = { (char)num, (char)length };   // Only 32 bytes can be sent at a time, and the receive limit is 28 stable
   DBG(length);
@@ -121,7 +115,7 @@ DFRobot_ISRModule_I2C::DFRobot_ISRModule_I2C(TwoWire* pWire, uint8_t addr)
   _deviceAddr = addr;
 }
 
-bool DFRobot_ISRModule_I2C::begin(eSpeechModelType_t type, uint8_t duration)
+bool DFRobot_ISRModule_I2C::begin(uint8_t duration)
 {
   _pWire->begin();
   _pWire->beginTransmission(_deviceAddr);
@@ -129,7 +123,7 @@ bool DFRobot_ISRModule_I2C::begin(eSpeechModelType_t type, uint8_t duration)
     DBG("I2C init error!!!!");
     return false;
   }
-  return DFRobot_ISRModule::begin(type, duration);
+  return DFRobot_ISRModule::begin(duration);
 }
 
 void DFRobot_ISRModule_I2C::writeReg(uint8_t reg, void* pBuf, size_t size)
@@ -192,7 +186,7 @@ DFRobot_ISRModule_UART::DFRobot_ISRModule_UART(HardwareSerial* hSerial, uint32_t
 }
 #endif
 
-bool DFRobot_ISRModule_UART::begin(eSpeechModelType_t type, uint8_t duration)
+bool DFRobot_ISRModule_UART::begin(uint8_t duration)
 {
 #ifdef ESP32
   _serial->begin(_baud, SERIAL_8N1, _txpin, _rxpin);
@@ -208,7 +202,7 @@ bool DFRobot_ISRModule_UART::begin(eSpeechModelType_t type, uint8_t duration)
     DBG(((data[0] << 8) | data[1]), HEX);
     return false;
   }
-  return DFRobot_ISRModule::begin(type, duration);
+  return DFRobot_ISRModule::begin(duration);
 }
 
 void DFRobot_ISRModule_UART::writeReg(uint8_t reg, void* pBuf, size_t size)

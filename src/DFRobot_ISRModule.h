@@ -86,7 +86,7 @@ public:
    * @return bool type, means returning initialization status
    * @retval true NO_ERROR
    */
-  virtual bool begin(eSpeechModelType_t type = eSpeechModelChinese, uint8_t duration = 10);
+  virtual bool begin(uint8_t duration = 10);
 
   /**
    * @fn addCommandWord
@@ -118,14 +118,6 @@ public:
   uint8_t getKeywordID(void);
 
 private:
-
-  /**
-   * @fn setSpeechModelType
-   * @brief Set the type of the speech recognition model
-   * @param type - Type of the speech recognition model: Standby, Chinese, English
-   * @return None
-   */
-  void setSpeechModelType(eSpeechModelType_t type);
 
   /**
    * @fn setWakeupTime
@@ -164,7 +156,7 @@ class DFRobot_ISRModule_I2C:public DFRobot_ISRModule
 {
 public:
   DFRobot_ISRModule_I2C(TwoWire* pWire = &Wire, uint8_t addr = MODULE_I2C_ADDRESS);
-  bool begin(eSpeechModelType_t type = eSpeechModelChinese, uint8_t duration = 10);
+  bool begin(uint8_t duration = 10);
 protected:
   virtual void writeReg(uint8_t reg, void* pBuf, size_t size);
   virtual uint8_t readReg(uint8_t reg, void* pBuf, size_t size);
@@ -182,7 +174,7 @@ public:
   DFRobot_ISRModule_UART(HardwareSerial* hSerial, uint32_t Baud = UART_BAUDRATE, uint8_t rxpin = 0, uint8_t txpin = 0);
 #endif
 
-  bool begin(eSpeechModelType_t type = eSpeechModelChinese, uint8_t duration = 10);
+  bool begin(uint8_t duration = 10);
 protected:
   virtual void writeReg(uint8_t reg, void* pBuf, size_t size);
   virtual uint8_t readReg(uint8_t reg, void* pBuf, size_t size);

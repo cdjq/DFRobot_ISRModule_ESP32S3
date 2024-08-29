@@ -48,7 +48,7 @@
    * @return Bool类型，表示初始化结果
    * @retval true NO_ERROR
    */
-  virtual bool begin(eSpeechModelType_t type = eSpeechModelChinese, uint8_t duration = 10);
+  virtual bool begin(uint8_t duration = 10);
 
   /**
    * @fn addCommandWord
